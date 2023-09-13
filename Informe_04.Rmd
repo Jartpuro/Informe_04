@@ -1,0 +1,77 @@
+---
+title: "Informe_04"
+author: "Jhon Alexander Rojas Tavera"
+date: "2023-09-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r }
+
+# Paso 1: Definir la muestra original
+muestra_original <- c(7.69, 4.97, 4.56, 6.49, 4.34, 6.24, 4.45)
+
+# Paso 2: Definir el número de muestras bootstrap
+k <- 1000
+
+# Inicializar un vector para almacenar las medias de las muestras bootstrap
+medias_bootstrap <- numeric(k)
+
+# Paso 3: Realizar el muestreo bootstrap
+for (i in 1:k) {
+  # Muestreo aleatorio con reemplazo
+  muestra_bootstrap <- sample(muestra_original, replace = TRUE)
+  
+  # Calcular la media de la muestra bootstrap
+  media_bootstrap <- mean(muestra_bootstrap)
+  
+  # Almacenar la media en el vector
+  medias_bootstrap[i] <- media_bootstrap
+}
+
+# Paso 4: Calcular los percentiles para el Método 1
+percentil_2_5 <- quantile(medias_bootstrap, 0.025)
+percentil_97_5 <- quantile(medias_bootstrap, 0.975)
+
+# Paso 5: Calcular los límites del intervalo para el Método 2
+limite_inferior_metodo_2 <- 2 * mean(muestra_original) - percentil_97_5
+limite_superior_metodo_2 <- 2 * mean(muestra_original) - percentil_2_5
+
+# Paso 6: Imprimir los intervalos de confianza
+cat("Intervalo de confianza Método 1: (", percentil_2_5, ",", percentil_97_5, ")\n")
+cat("Intervalo de confianza Método 2: (", limite_inferior_metodo_2, ",", limite_superior_metodo_2, ")\n")
+
+# Paso 7: Comparar los resultados
+if (mean(muestra_original) >= percentil_2_5 && mean(muestra_original) <= percentil_97_5) {
+  cat("La media está dentro del intervalo de confianza del Método 1.\n")
+} else {
+  cat("La media está fuera del intervalo de confianza del Método 1.\n")
+}
+
+if (mean(muestra_original) >= limite_inferior_metodo_2 && mean(muestra_original) <= limite_superior_metodo_2) {
+  cat("La media está dentro del intervalo de confianza del Método 2.\n")
+} else {
+  cat("La media está fuera del intervalo de confianza del Método 2.\n")
+}
+
+
+```
+
+```{r }
+
+# Paso 8: Generar gráficos
+par(mfrow = c(1, 2))  # Dividir la ventana de gráficos en 2 columnas
+
+# Histograma de las medias bootstrap
+hist(medias_bootstrap, main = "Histograma de Medias Bootstrap", xlab = "Media Bootstrap")
+
+# Boxplot de las medias bootstrap
+boxplot(medias_bootstrap, main = "Boxplot de Medias Bootstrap", ylab = "Media Bootstrap")
+
+# Restaurar la configuración de la ventana de gráficos
+par(mfrow = c(1, 1))
+
+```

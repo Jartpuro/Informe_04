@@ -2,25 +2,59 @@
 title: "Informe_04"
 author: "Jhon Alexander Rojas Tavera"
 date: "2023-09-13"
-output: html_document
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+
+<h1>Estimacción boostrap</h1>
+
+<p>
+
+Cuando se extrae una muestra de una población que no es normal y se requiere estimar un intervalo de confianza se pueden utilizar los métodos de estimación bootstrap. Esta metodología supone que se puede reconstruir la población objeto de estudio mediante un muestreo con reemplazo de la muestra que se tiene. Existen varias versiones del método. Una presentación básica del método se describe a continuación:
+
+
+
+El artículo de In-use Emissions from Heavy Duty Dissel Vehicles (J.Yanowitz, 2001) presenta las mediciones de eficiencia de combustible en millas/galón de una muestra de siete camiones. Los datos obtenidos son los siguientes: 7.69, 4.97, 4.56, 6.49, 4.34, 6.24 y 4.45. Se supone que es una muestra aleatoria de camiones y que se desea construir un intervalo de confianza del 95 % para la media de la eficiencia de combustible de esta población. No se tiene información de la distribución de los datos. El método bootstrap permite construir intervalos de confianza del 95 % - Para ilustrar el método suponga que coloca los valores de la muestra en una caja y extrae uno al azar. Este correspondería al primer valor de la muestra bootstrap X∗1
+. 
+
+Después de anotado el valor se regresa X∗1 a la caja y se extrae el valor X∗2, regresandolo nuevamente. Este procedimiento se repite hasta completar una muestra de tamaño n, X∗1,X∗2,X∗2,X∗n, conformando la muestra bootstrap
+
+Es necesario extraer un gran número de muestras (suponga k = 1000). Para cada una de las muestra bootstrap obtenidas se calcula la media X∗i¯, obteniéndose un valor para cada muestra. El intervalo de confianza queda conformado por los percentiles P2.5 y P97.5. Existen dos métodos para estimarlo:
+</p>
+
+![](img/problema4.png)
+
+<h2>Definición de la muestra original</h2>
 ```{r }
 
-# Paso 1: Definir la muestra original
 muestra_original <- c(7.69, 4.97, 4.56, 6.49, 4.34, 6.24, 4.45)
+muestra_original
 
-# Paso 2: Definir el número de muestras bootstrap
+```
+
+
+<h2>Definición del número de muestras bootstrap</h2>
+```{r }
 k <- 1000
 
-# Inicializar un vector para almacenar las medias de las muestras bootstrap
+# Inicialización del vector para almacenar las medias de las muestras bootstrap
 medias_bootstrap <- numeric(k)
+medias_bootstrap
 
-# Paso 3: Realizar el muestreo bootstrap
+```
+
+<h2>Muestreo Bootstrap</h2>
+```{r }
 for (i in 1:k) {
   # Muestreo aleatorio con reemplazo
   muestra_bootstrap <- sample(muestra_original, replace = TRUE)
@@ -32,19 +66,37 @@ for (i in 1:k) {
   medias_bootstrap[i] <- media_bootstrap
 }
 
-# Paso 4: Calcular los percentiles para el Método 1
+  media_bootstrap
+  medias_bootstrap[i]
+```
+
+<h2>Calcular los percentiles para el Método 1</h2>
+```{r }
+
 percentil_2_5 <- quantile(medias_bootstrap, 0.025)
 percentil_97_5 <- quantile(medias_bootstrap, 0.975)
 
-# Paso 5: Calcular los límites del intervalo para el Método 2
+```
+
+
+<h2> Calcular los límites del intervalo para el Método 2</h2>
+```{r }
 limite_inferior_metodo_2 <- 2 * mean(muestra_original) - percentil_97_5
 limite_superior_metodo_2 <- 2 * mean(muestra_original) - percentil_2_5
+```
 
-# Paso 6: Imprimir los intervalos de confianza
+
+<h2>Imprimir los intervalos de confianza</h2>
+```{r }
 cat("Intervalo de confianza Método 1: (", percentil_2_5, ",", percentil_97_5, ")\n")
 cat("Intervalo de confianza Método 2: (", limite_inferior_metodo_2, ",", limite_superior_metodo_2, ")\n")
 
-# Paso 7: Comparar los resultados
+
+```
+
+<h2>Comaparativa de resultados</h2>
+```{r }
+
 if (mean(muestra_original) >= percentil_2_5 && mean(muestra_original) <= percentil_97_5) {
   cat("La media está dentro del intervalo de confianza del Método 1.\n")
 } else {
@@ -60,18 +112,27 @@ if (mean(muestra_original) >= limite_inferior_metodo_2 && mean(muestra_original)
 
 ```
 
+<h2>Visualización de datos </h2>
 ```{r }
 
-# Paso 8: Generar gráficos
+# Gráficos
 par(mfrow = c(1, 2))  # Dividir la ventana de gráficos en 2 columnas
 
-# Histograma de las medias bootstrap
-hist(medias_bootstrap, main = "Histograma de Medias Bootstrap", xlab = "Media Bootstrap")
+# Histograma de las medias bootstrap con colores
+hist(medias_bootstrap, main = "Histograma de Medias Bootstrap", xlab = "Media Bootstrap", col = "blue", border = "black")
 
-# Boxplot de las medias bootstrap
-boxplot(medias_bootstrap, main = "Boxplot de Medias Bootstrap", ylab = "Media Bootstrap")
+# Boxplot de las medias bootstrap con colores
+boxplot(medias_bootstrap, main = "Boxplot de Medias Bootstrap", ylab = "Media Bootstrap", col = "green", border = "black")
 
+```
+```{r, echo=FALSE}
 # Restaurar la configuración de la ventana de gráficos
 par(mfrow = c(1, 1))
 
 ```
+
+<h2>Conclusión </h2>
+En relación a lo solicitado en el ejercicio, y segun estos resultados no encuentro una diferencia evidente que me haga pensar si los resultados son confiables o no según el metodo, pues en ambos métodos de estimación de intervalos de confianza (Bootstrap Percentil y Bootstrap BCA) proporcionan resultados parecidos y congruentes. Dado que, ambos intervalos incluyen la media de la muestra original y se superponen, podemos confiar en que la media de eficiencia de combustible de la población de camiones se encuentra dentro de este rango con un 95% de confianza.
+
+<h2>Repositorio Github</h2>
+<p>Si quieres consultar el codigó de este informe puedes validarlo en este enlace:</p> <href> https://github.com/Jartpuro/U2_Informe_04</href>
